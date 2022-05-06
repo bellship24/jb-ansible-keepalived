@@ -1,0 +1,15 @@
+- name: Assert if there is one host in master group or not
+  assert:
+    that: groups['keepalived-master'] | length == 1
+    success_msg: "[Pass] keepalived-master group has one node"
+    fail_msg: "[Failed] keepalived-master group must have one node"
+
+- name: Verify if each node individually belongs to specific group or not
+  block:
+    - name: Assert if each node individually belongs to specific group or not
+      assert:
+        that:
+          - not((ansible_hostname in groups['keepalived-master']) and (ansible_hostname in groups['keepalived-backup']))
+          - (ansible_hostname in groups['keepalived-master']) or (ansible_hostname in groups['keepalived-backup'])
+        success_msg: "[Pass] each node belongs to specific one group"
+        fail_msg: "[Failed] each node must have belong to one group (keepalived-master or keepalived-backup)"

@@ -1,0 +1,55 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: keepalived-ubuntu18
+    image: jb-ubuntu1804-ansible:v0.1 #geerlingguy/docker-centos7-ansible:latest
+    pre_build_image: true
+    privileged: True
+    command: /sbin/init
+    capabilities:
+      - SYS_ADMIN
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      # - /var/lib/docker
+    groups:
+      - keepalived-master
+      # - keepalived-backup
+    #cpus: 1
+    #memory: 256MB
+  - name: keepalived-ubuntu20
+    image: jb-ubuntu2004-ansible:v0.1 #geerlingguy/docker-centos7-ansible:latest
+    pre_build_image: true
+    privileged: True
+    command: /sbin/init
+    capabilities:
+      - SYS_ADMIN
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      # - /var/lib/docker
+    groups:
+      # - keepalived-master
+      - keepalived-backup    
+    #cpus: 1
+    #memory: 256MB
+  - name: keepalived-centos7
+    image: jb-centos7-ansible:v0.1 #geerlingguy/docker-centos7-ansible:latest
+    pre_build_image: true
+    privileged: True
+    command: /sbin/init
+    capabilities:
+      - SYS_ADMIN
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      # - /var/lib/docker
+    groups:
+      # - keepalived-master
+      - keepalived-backup
+    #cpus: 1
+    #memory: 256MB
+provisioner:
+  name: ansible
+verifier:
+  name: ansible

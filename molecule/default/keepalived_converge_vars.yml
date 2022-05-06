@@ -1,0 +1,36 @@
+# keepalived_status: "latest"
+# keepalived_virtual_ipaddress: 10.231.231.231/24
+# keepalived_script_name: check_apiserver
+# keepalived_conf: |
+#   global_defs {
+#       router_id LVS_DEVEL
+#   }
+#   vrrp_script {{ keepalived_script_name }} {
+#     script {{ keepalived_script_path }}
+#     interval 3
+#     weight -2
+#     fall 10
+#     rise 2
+#   }
+#
+#   vrrp_instance VI_1 {
+#       state {{ keepalived_role }}
+#       interface {{ keepalived_interface }}
+#       virtual_router_id {{ keepalived_virtual_router_id | default("eth0") }}
+#       priority {{ keepalived_priority }}
+#       authentication {
+#           auth_type PASS
+#           auth_pass {{ keepalived_pass }}
+#       }
+#       virtual_ipaddress {
+#         {{ keepalived_virtual_ipaddress }}
+#       }
+#       track_script {
+#           {{ keepalived_script_name }}
+#       }
+#   }
+# 
+# k8s_apiserver_ip: 127.0.0.1
+# k8s_apiserver_port: 6443
+# k8s_apiserver_vip: ""
+# k8s_apiserver_vip_port: """

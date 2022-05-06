@@ -1,0 +1,55 @@
+---
+- name: Include previous_check.yml
+  include_tasks: previous_check.yml
+
+- name: Set backup node's fact about priority
+  set_fact:
+    keepalived_priority: "{{ keepalived_priority - (groups['keepalived-backup'].index(ansible_hostname)+1) }}"
+  when: ansible_hostname in groups['keepalived-backup']
+  
+- name: Print node's priority
+  debug:
+    var: keepalived_priority
+
+- name: Print node's keepalived_role
+  debug:
+    var: keepalived_role
+
+- name: Ensure Keepalived package (YUM)
+  yum:
+    name: keepalived
+    state: "{{ keepalived_status }}"
+    update_cache: true
+  when: ansible_os_family == "RedHat"
+
+- name: Ensure Keepalived package (APT)
+  apt:
+    name: keepalived
+    state: "{{ keepalived_status }}"
+    update_cache: true
+  when: ansible_os_family == "Debian"
+
+- name: Ensure Keepalived config file
+  template:
+    src: "keepalived.conf.j2"
+    dest: "/etc/keepalived/keepalived.conf"
+    owner: root
+    group: root
+    mode: 0600
+  # notify: Restart keepalived
+
+- name: Ensure check_apiserver.sh
+  template:
+    src: "check_apiserver.sh.j2"
+    dest: "/etc/keepalived/check_apiserver.sh"
+    owner: root
+    group: root
+    mode: 0700
+  # notify: Restart keepalived
+
+- name: Restart keepalived
+  service:
+    name: keepalived
+    state: restarted
+  tags:
+    - restart

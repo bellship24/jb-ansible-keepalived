@@ -1,0 +1,12 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+  pre_tasks:
+    - name: Include keepalived_molecule_pretask.yml
+      include_tasks: keepalived_molecule_pretask.yml
+      # tags:
+      #   - never
+      #   - molecule
+  roles:
+    - role: jb.ansible_keepalived

@@ -1,0 +1,18 @@
+# {{ ansible_managed }}
+
+APISERVER_IP={{ k8s_apiserver_ip }}
+APISERVER_PORT={{ k8s_apiserver_port }}
+APISERVER_VIP={{ k8s_apiserver_vip }}
+APISERVER_VIP_PORT={{ k8s_apiserver_vip_port }}
+
+errorExit() {
+    echo "[$(date)][Error] $*" 1>&2
+    exit 1
+}
+
+curl --silent --max-time 2 --insecure https://${APISERVER_IP}:${APISERVER_PORT}/livez -o /dev/null || errorExit "Error GET https://${APISERVER_IP}:${APISERVER_PORT}/livez"
+if [ -n "$APISERVER_VIP" ]; then
+  if ip addr | grep -q ${APISERVER_VIP}; then
+    curl --silent --max-time 2 --insecure https://${APISERVER_VIP}:${APISERVER_VIP_PORT}/livez -o /dev/null || errorExit "Error GET https://${APISERVER_VIP}:${APISERVER_VIP_PORT}/livez"
+  fi
+fi

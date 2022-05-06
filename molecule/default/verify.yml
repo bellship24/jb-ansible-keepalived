@@ -1,0 +1,49 @@
+---
+# This is an example playbook to execute Ansible tests.
+
+- name: Verify
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Include default vars
+      include_vars: ../../defaults/main.yml
+
+    - name: Include keepalived_converge_vars.yml
+      include_vars: keepalived_converge_vars.yml
+
+    - name: Verify if master node's role is correct as master or not
+      block:
+        - name: Check if master node's role is correct as master or not
+          shell: >
+            ip a s | grep {{ keepalived_virtual_ipaddress.split('/')[0] }}
+          register: check_vip
+          when: ansible_hostname in groups['keepalived-master']
+
+        - name: Assert if master node's role is correct as master or not
+          assert:
+            that:
+              - check_vip.stderr | length == 0
+            success_msg: "{{ ansible_hostname }} is master role"
+            fail_msg: "{{ ansible_hostname }} is not master role"
+          when: ansible_hostname in groups['keepalived-master']
+          ignore_errors: true
+
+    - name: Verify if all nodes ping to VIP or not
+      block:
+        # - name: set fact to configure failure about this assert
+        #   set_fact:
+        #     keepalived_virtual_ipaddress: "177.177.177.177/24"
+
+        - name: Ping to VIP on all nodes
+          shell: >
+            ping -c 5 -w 5 {{ keepalived_virtual_ipaddress.split('/')[0] }} 
+          register: check_ping
+          ignore_errors: true
+
+        - name: Assert if all nodes ping to VIP or not
+          assert:
+            that:
+              - "not {{ check_ping.failed }}"
+            success_msg: "{{ ansible_hostname }} can ping to VIP"
+            fail_msg: "{{ ansible_hostname }} can't ping to VIP"
+          ignore_errors: true
