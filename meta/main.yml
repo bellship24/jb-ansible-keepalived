@@ -1,6 +1,7 @@
 galaxy_info:
   author: your name
   namespace: jb
+  role_name: jb_ansible_keepalived
   description: your role description
   company: your company (optional)
 
